@@ -17,8 +17,8 @@ class CreateLanguagesTable extends Migration
             $table->bigIncrements('id');
             $table->string('code')->unique()->index();
             $table->string('name');
-            $table->string('native_name');
-            $table->tinyInteger('is_enabled')->default(0);
+            $table->string('native_name')->nullable();
+            $table->tinyInteger('is_enabled')->default(1);
             $table->timestamps();
             $table->softDeletes();
         });

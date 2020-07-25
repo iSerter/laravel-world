@@ -5,6 +5,7 @@ namespace Iserter\World\Console\Commands;
 use Illuminate\Console\Command;
 use Iserter\World\Models\Continent;
 use Iserter\World\Models\Country;
+use Iserter\World\Models\Language;
 use Iserter\World\Models\Province;
 
 class PopulateGeoDataCommand extends Command
@@ -40,20 +41,23 @@ class PopulateGeoDataCommand extends Command
      */
     public function handle()
     {
-        if(Country::query()->count() !== 0) {
+        Continent::unguard();
+        Country::unguard();
+        Language::unguard();
+        if (Country::query()->count() !== 0) {
             $this->error('there are country records');
             return;
         }
 
-        if(Continent::query()->count() === 0) {
+        if (Continent::query()->count() === 0) {
             $this->createContinents();
         }
 
-        if(Country::query()->count() === 0) {
+        if (Country::query()->count() === 0) {
             $this->createCountries();
         }
 
-        if(Province::query()->count() === 0) {
+        if (Province::query()->count() === 0) {
             $this->createProvinces();
         }
 
@@ -102,6 +106,7 @@ class PopulateGeoDataCommand extends Command
             $p->name = isset($v['english']) ? $v['english'] : $v['name'];
             $p->native_name = isset($v['english']) ? $v['name'] : null;
             $p->short_name = isset($v['short']) ? $v['short'] : null;
+            $p->code = isset($v['short']) ? $v['short'] : null;
             $p->region = isset($v['region']) ? $v['region'] : null;
             $p->save();
         }
@@ -127,6 +132,21 @@ class PopulateGeoDataCommand extends Command
                 if ($c->currencies[0]->symbol) {
                     $country->currency_symbol = $c->currencies[0]->symbol;
                 }
+            }
+
+            if (isset($c->languages) && !empty($c->languages)) {
+                $languageCodes = [];
+                foreach ($c->languages as $lang) {
+                    if (!$lang->iso639_1) {
+                        continue;
+                    }
+                    // {"iso639_1":"en","iso639_2":"eng","name":"English","nativeName":"English"}
+                    $l = Language::query()->firstOrCreate(['code' => $lang->iso639_1, 'name' => $lang->name]);
+                    $l->native_name = $lang->nativeName;
+                    $l->save();
+                    $languageCodes[] = $l->code;
+                }
+                $country->language_codes = array_unique($languageCodes);
             }
 
             $country->save();

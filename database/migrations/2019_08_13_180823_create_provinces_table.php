@@ -13,15 +13,19 @@ class CreateProvincesTable extends Migration
      */
     public function up()
     {
-        Schema::create('provinces', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('name');
-            $table->string('short_name')->nullable();
-            $table->string('region')->nullable();
-            $table->string('native_name')->nullable();
-            $table->char('country_code',2);
-            $table->timestamps();
-        });
+        Schema::create(
+            'provinces',
+            function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->string('name');
+                $table->string('short_name')->nullable();
+                $table->string('code')->nullable();
+                $table->string('region')->nullable();
+                $table->string('native_name')->nullable();
+                $table->char('country_code', 2);
+                $table->timestamps();
+            }
+        );
     }
 
     /**
