@@ -45,21 +45,25 @@ class PopulateGeoDataCommand extends Command
             return;
         }
 
-        $this->createContinents();
+        if(Continent::query()->count() === 0) {
+            $this->createContinents();
+        }
 
-        $this->createCountries();
+        if(Country::query()->count() === 0) {
+            $this->createCountries();
+        }
 
-        $this->createProvinces();
+        if(Province::query()->count() === 0) {
+            $this->createProvinces();
+        }
 
         $this->updateCountriesData();
 
         $this->comment('Populated GEO data');
     }
 
-    /**
-     * @return array
-     */
-    protected function createContinents(): array
+
+    protected function createContinents()
     {
         $continents = json_decode(file_get_contents(__DIR__ . '/../../../database/data/geography/continents.json'), 1);
         foreach ($continents as $k => $v) {
@@ -71,9 +75,7 @@ class PopulateGeoDataCommand extends Command
         }
     }
 
-    /**
-     * @return mixed
-     */
+
     private function createCountries()
     {
         $countries = json_decode(file_get_contents(__DIR__ . '/../../../database/data/geography/countries.json'), 1);
@@ -91,7 +93,7 @@ class PopulateGeoDataCommand extends Command
         }
     }
 
-    private function createProvinces(): void
+    private function createProvinces()
     {
         $provinces = json_decode(file_get_contents(__DIR__ . '/../../../database/data/geography/provinces.json'), 1);
         foreach ($provinces as $k => $v) {
